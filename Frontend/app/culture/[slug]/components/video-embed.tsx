@@ -1,10 +1,11 @@
-export default function VideoEmbed({ post }) {
-  // Replace this with AmpleProtocol embed once they give final docs
+export default function VideoEmbed({ url }) {
   return (
-    <iframe
-      src={post.og_description}
-      className="w-full aspect-video rounded"
-      allowFullScreen
-    />
+    <div className="w-full aspect-video rounded-xl overflow-hidden">
+      <iframe
+        src={url}
+        className="w-full h-full"
+        allow="fullscreen"
+      />
+    </div>
   );
 }

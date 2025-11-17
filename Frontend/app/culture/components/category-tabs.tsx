@@ -1,32 +1,33 @@
-import Link from "next/link";
-import { ghost } from "../utils/ghost";
+"use client";
 
-export default async function CategoryTabs({ activeTag }) {
-  const tags = await ghost.tags.browse({ limit: "all" });
+import { useRouter, useSearchParams } from "next/navigation";
+
+export default function CategoryTabs({ categories }) {
+  const router = useRouter();
+  const params = useSearchParams();
+  const active = params.get("category");
 
   return (
-    <div className="flex gap-3 flex-wrap mb-10">
-      <Link
-        href="/culture"
-        className={`px-4 py-2 rounded-full border ${
-          !activeTag ? "bg-white text-black" : "bg-transparent text-white"
+    <div className="flex gap-3 mt-5 overflow-x-auto no-scrollbar">
+      <button
+        onClick={() => router.push("/culture")}
+        className={`px-3 py-1 rounded-full text-sm ${
+          !active ? "bg-purple-600 text-white" : "bg-gray-200"
         }`}
       >
         All
-      </Link>
+      </button>
 
-      {tags.map((tag) => (
-        <Link
-          key={tag.slug}
-          href={`/culture?tag=${tag.slug}`}
-          className={`px-4 py-2 rounded-full border ${
-            activeTag === tag.slug
-              ? "bg-white text-black"
-              : "bg-transparent text-white"
+      {categories.map((c) => (
+        <button
+          key={c.slug}
+          onClick={() => router.push(`/culture?category=${c.slug}`)}
+          className={`px-3 py-1 rounded-full text-sm ${
+            active === c.slug ? "bg-purple-600 text-white" : "bg-gray-200"
           }`}
         >
-          {tag.name}
-        </Link>
+          {c.name}
+        </button>
       ))}
     </div>
   );

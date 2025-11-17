@@ -1,15 +1,26 @@
-import { dbConnect } from "@/lib/db";
-import Like from "@/lib/models/Like";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: Request) {
-  await dbConnect();
+const likesStore: Record<string, number> = {};
+
+export async function GET(req: NextRequest) {
+  const postId = req.nextUrl.searchParams.get("postId");
+  if (!postId) return NextResponse.json({ likes: 0 });
+
+  return NextResponse.json({ likes: likesStore[postId] || 0 });
+}
+
+export async function POST(req: NextRequest) {
   const { postId } = await req.json();
+  if (!postId) return NextResponse.json({ likes: 0 });
 
-  const like = await Like.findOneAndUpdate(
-    { postId },
-    { $inc: { count: 1 }},
-    { upsert: true, new: true }
-  );
+  likesStore[postId] = (likesStore[postId] || 0) + 1;
+  return NextResponse.json({ likes: likesStore[postId] });
+}
 
-  return Response.json(like);
+export async function DELETE(req: NextRequest) {
+  const { postId } = await req.json();
+  if (!postId) return NextResponse.json({ likes: 0 });
+
+  likesStore[postId] = Math.max((likesStore[postId] || 0) - 1, 0);
+  return NextResponse.json({ likes: likesStore[postId] });
 }

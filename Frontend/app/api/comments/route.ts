@@ -1,24 +1,24 @@
-import { dbConnect } from "@/lib/db";
-import Comment from "@/lib/models/Comment";
+const commentsStore: Record<string, unknown[]> = {};
 
-export async function GET(req: Request) {
-  await dbConnect();
-  const { searchParams } = new URL(req.url);
-  const postId = searchParams.get("postId");
+import { NextRequest, NextResponse } from "next/server";
 
-  const comments = await Comment.find({ postId }).sort({ createdAt: -1 });
-  return Response.json(comments);
+export async function GET(req: NextRequest) {
+  const postId = req.nextUrl.searchParams.get("postId");
+  if (!postId) return NextResponse.json({ comments: [] });
+
+  return NextResponse.json({ comments: commentsStore[postId] || [] });
 }
 
-export async function POST(req: Request) {
-  await dbConnect();
-  const { postId, text } = await req.json();
+export async function POST(req: NextRequest) {
+  const { postId, name, text } = await req.json();
+  if (!postId || !name || !text) {
+    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  }
 
-  const comment = await Comment.create({
-    postId,
-    text,
-    createdAt: new Date(),
-  });
+  const newComment = { id: Date.now().toString(), postId, name, text, createdAt: new Date() };
 
-  return Response.json(comment);
+  if (!commentsStore[postId]) commentsStore[postId] = [];
+  commentsStore[postId].push(newComment);
+
+  return NextResponse.json({ comment: newComment });
 }

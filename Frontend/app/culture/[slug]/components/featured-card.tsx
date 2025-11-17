@@ -1,10 +1,11 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function FeaturedCard({ post }) {
   return (
     <Link href={`/culture/${post.slug}`}>
       <div className="rounded-xl overflow-hidden shadow-lg bg-black">
-        <img
+        <Image
           src={post.feature_image}
           className="w-full h-48 object-cover"
           alt={post.feature_image_alt || post.title}

@@ -1,64 +1,44 @@
-// "use client";
+"use client";
 
-// import useEmblaCarousel from "embla-carousel-react";
-// import Autoplay from "embla-carousel-autoplay";
-// import FeaturedCard from "./FeaturedCard";
+import React, { useRef } from "react";
+import Link from "next/link";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
+import Image from "next/image";
 
-// export default function FeaturedSlider({ posts }) {
-//   const [emblaRef] = useEmblaCarousel(
-//     { loop: true, dragFree: true, align: "start" },
-//     [Autoplay({ delay: 5000 })]
-//   );
+interface FeaturedSliderProps {
+  posts: unknown[];
+}
 
-//   return (
-//     <div className="overflow-hidden" ref={emblaRef}>
-//       <div className="flex gap-4 px-4">
-//         {posts.map(post => (
-//           <div
-//             key={post.id}
-//             className="min-w-[80%] sm:min-w-[60%] md:min-w-[40%]"
-//           >
-//             <FeaturedCard post={post} />
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
+export default function FeaturedSlider({ posts }: FeaturedSliderProps) {
+  const autoplay = useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: false })
+  );
+  const [emblaRef] = useEmblaCarousel({ loop: true }, [autoplay.current]);
 
-
-
-// components/drvn-culture/FeaturedSlider.tsx
-import React from 'react';
-import Slider from 'react-slick';
-// import FeaturedCard from './FeaturedCard';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import FeaturedCard from './featured-card';
-
-const settings = {
-  dots: false,
-  infinite: false,
-  speed: 400,
-  slidesToShow: 1,
-  slidesToScroll: 1,
-  centerMode: false,
-  responsive: [
-    { breakpoint: 768, settings: { slidesToShow: 1 } }
-  ]
-};
-
-export default function FeaturedSlider({ posts }: { posts: any[] }) {
   if (!posts || posts.length === 0) return null;
+
   return (
-    <div className="mb-6">
-      <Slider {...settings}>
-        {posts.map((p) => (
-          <div key={p.id} className="px-2">
-            <FeaturedCard post={p} />
-          </div>
+    <div className="overflow-hidden" ref={emblaRef}>
+      <div className="flex gap-4">
+        {posts.map((post) => (
+          <Link
+            key={post.id}
+            href={`/culture/${post.slug}`}
+            className="min-w-full sm:min-w-[300px] rounded-xl overflow-hidden shadow-lg"
+          >
+            <Image
+              src={post.feature_image}
+              alt={post.title}
+              className="w-full h-60 sm:h-72 object-cover"
+            />
+            <div className="p-4 bg-black">
+              <h2 className="text-white font-semibold text-lg">{post.title}</h2>
+              <p className="text-gray-400 text-sm">{post.excerpt}</p>
+            </div>
+          </Link>
         ))}
-      </Slider>
+      </div>
     </div>
   );
 }

@@ -1,19 +1,55 @@
 import { ghost } from "../utils/ghost";
+import { Metadata } from "next";
 
-export async function generateMetadata({ params }) {
-  const post = await ghost.posts.read({
-    slug: params.slug,
+export async function generateMetadata({ params }): Promise<Metadata> {
+  const { slug } = params;
+
+  const [post] = await ghost.posts.browse({
+    filter: `slug:${slug}`,
     include: "tags,authors",
+    limit: 1,
   });
 
+  if (!post) {
+    return {
+      title: "Article Not Found",
+      description: "The article you are looking for does not exist.",
+    };
+  }
+
+  const title = post.title;
+  const description = post.excerpt || post.meta_description || "";
+  const image = post.feature_image || "";
+  const publishedTime = post.published_at;
+  const authorName = post.authors?.[0]?.name || "DRVN";
+
+  const isVideoPost = post.tags?.some((t) => t.slug === "video");
+
+  const ogImage = image;
+
   return {
-    title: post.meta_title || post.title,
-    description: post.meta_description || post.excerpt,
+    title,
+    description,
+    authors: [{ name: authorName }],
     openGraph: {
-      title: post.meta_title || post.title,
-      description: post.meta_description || post.excerpt,
-      images: [post.feature_image],
-      type: "article",
+      title,
+      description,
+      type: isVideoPost ? "video.other" : "article",
+      url: `https://yourdomain.com/culture/${slug}`,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+        },
+      ],
+      publishedTime,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
     },
   };
 }

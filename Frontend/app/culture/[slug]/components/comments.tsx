@@ -1,41 +1,84 @@
 "use client";
+import { useState, useEffect } from "react";
 
-import useSWR from "swr";
-import { useState } from "react";
+interface Comment {
+  id: string;
+  name: string;
+  text: string;
+  createdAt: string;
+}
 
-export default function Comments({ postId }) {
+interface CommentsProps {
+  postId: string;
+}
+
+export default function Comments({ postId }: CommentsProps) {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [name, setName] = useState("");
   const [text, setText] = useState("");
 
-  const { data: comments, mutate } = useSWR(`/api/comments?postId=${postId}`, (url) =>
-    fetch(url).then(res => res.json())
-  );
+  useEffect(() => {
+    async function fetchComments() {
+      try {
+        const res = await fetch(`/api/comments?postId=${postId}`);
+        if (!res.ok) throw new Error("Failed to fetch comments");
+        const data = await res.json();
+        setComments(data.comments);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchComments();
+  }, [postId]);
 
-  async function sendComment() {
-    await fetch("/api/comments", {
-      method: "POST",
-      body: JSON.stringify({ postId, text }),
-    });
-
-    setText("");
-    mutate();
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      const res = await fetch("/api/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId, name, text }),
+      });
+      if (!res.ok) throw new Error("Failed to post comment");
+      const data = await res.json();
+      setComments(prev => [data.comment, ...prev]);
+      setName("");
+      setText("");
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   return (
-    <div className="mt-8">
-      <h3 className="text-xl mb-3">Comments</h3>
+    <div className="mt-6">
+      <h3 className="text-lg font-semibold mb-2">Comments</h3>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 mb-4">
+        <input
+          type="text"
+          placeholder="Your name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          className="border p-2 rounded"
+          required
+        />
+        <textarea
+          placeholder="Your comment"
+          value={text}
+          onChange={e => setText(e.target.value)}
+          className="border p-2 rounded"
+          required
+        />
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+          Post Comment
+        </button>
+      </form>
 
-      <textarea
-        className="w-full p-2 rounded bg-white border border-neutral-700"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-
-      <button onClick={sendComment} className="mt-2 bg-blue-600 rounded px-3 py-2">Send</button>
-
-      <div className="mt-6 space-y-3">
-        {comments?.map(c => (
-          <div key={c._id} className="p-3 rounded bg-neutral-900">
-            {c.text}
+      <div className="flex flex-col gap-3">
+        {comments.map(comment => (
+          <div key={comment.id} className="border-b pb-2">
+            <p className="font-semibold">{comment.name}</p>
+            <p>{comment.text}</p>
+            <small className="text-gray-500">{new Date(comment.createdAt).toLocaleString()}</small>
           </div>
         ))}
       </div>

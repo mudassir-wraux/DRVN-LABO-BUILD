@@ -326,7 +326,7 @@ function MyNFTKeys() {
  * - Responsive design
  */
 interface GarageProps {
-  currentUser: any;
+  currentUser: unknown;
   isAuthenticated: boolean;
 }
 

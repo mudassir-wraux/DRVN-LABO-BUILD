@@ -1,57 +1,45 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 
-export default function Pagination({ currentPage, totalPages, activeTag }) {
-  const router = useRouter();
-  const params = useSearchParams();
+export default function Pagination({ page, totalPages, activeTag }) {
+  const generateUrl = (p) =>
+    activeTag ? `/culture/page/${p}?tag=${activeTag}` : `/culture/page/${p}`;
 
-  const goToPage = (page) => {
-    const query = new URLSearchParams(params.toString());
-    query.set("page", String(page));
-
-    if (activeTag) {
-      query.set("tag", activeTag);
-    }
-
-    router.push(`/culture?${query.toString()}`);
-  };
-
-  if (totalPages <= 1) return null;
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) pages.push(i);
 
   return (
-    <div className="flex justify-center mt-10 gap-3">
-      <button
-        disabled={currentPage === 1}
-        onClick={() => goToPage(currentPage - 1)}
-        className="px-3 py-2 border rounded disabled:opacity-40"
-      >
-        Prev
-      </button>
+    <div className="flex justify-center items-center gap-2 mt-10 flex-wrap">
+      {page > 1 && (
+        <Link
+          href={generateUrl(page - 1)}
+          className="px-3 py-1 bg-gray-200 rounded-lg text-sm hover:bg-gray-300 transition"
+        >
+          Previous
+        </Link>
+      )}
 
-      {[...Array(totalPages)].map((_, i) => {
-        const page = i + 1;
+      {pages.map((p) => (
+        <Link
+          key={p}
+          href={generateUrl(p)}
+          className={`px-3 py-1 rounded-lg text-sm transition ${
+            p === page ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300"
+          }`}
+        >
+          {p}
+        </Link>
+      ))}
 
-        return (
-          <button
-            key={page}
-            onClick={() => goToPage(page)}
-            className={`px-3 py-2 border rounded ${
-              page === currentPage ? "bg-black text-white" : ""
-            }`}
-          >
-            {page}
-          </button>
-        );
-      })}
-
-      <button
-        disabled={currentPage === totalPages}
-        onClick={() => goToPage(currentPage + 1)}
-        className="px-3 py-2 border rounded disabled:opacity-40"
-      >
-        Next
-      </button>
+      {page < totalPages && (
+        <Link
+          href={generateUrl(page + 1)}
+          className="px-3 py-1 bg-gray-200 rounded-lg text-sm hover:bg-gray-300 transition"
+        >
+          Next
+        </Link>
+      )}
     </div>
   );
 }

@@ -15,10 +15,10 @@ declare module "@tryghost/content-api" {
     custom_excerpt?: string;
     feature_image?: string;
     feature_image_alt?: string;
-    tags?: any[];
-    authors?: any[];
+    tags?: unknown[];
+    authors?: unknown[];
     published_at?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   }
 
   export class GhostContentAPI {

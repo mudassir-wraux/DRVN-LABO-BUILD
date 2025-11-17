@@ -1,15 +1,13 @@
-// ghost.ts
-// @ts-ignore
+// @ts-expect-error: Ghost API type mismatch
 import GhostContentAPI from '@tryghost/content-api';
-import { PostProps } from "@/types/ghost";  // Import the type
+import { PostProps } from "@/types/ghost";
 
 const api = new GhostContentAPI({
   url: process.env.GHOST_API_URL!,
   key: process.env.GHOST_API_KEY!,
-  version: 'v5.0', // match your Ghost version
+  version: 'v5.0',
 });
 
-// Fetch latest posts (limit 5)
 export const getPosts = async (): Promise<PostProps[]> => {
   try {
     const posts: PostProps[] = await api.posts.browse({ limit: 5, include: 'tags,authors' });
@@ -21,11 +19,9 @@ export const getPosts = async (): Promise<PostProps[]> => {
   }
 };
 
-// Fetch featured posts (limit 3 by default)
 export const getFeaturedPosts = async (): Promise<PostProps[]> => {
   try {
     const posts: PostProps[] = await api.posts.browse({
-      // limit,
       filter: 'featured:true',
       include: 'tags,authors',
     });
@@ -36,7 +32,6 @@ export const getFeaturedPosts = async (): Promise<PostProps[]> => {
   }
 };
 
-// Fetch all non-featured posts with pagination
 export const getAllPosts = async (page = 1, limit = 12): Promise<PostProps[]> => {
   try {
     const posts: PostProps[] = await api.posts.browse({
@@ -52,7 +47,6 @@ export const getAllPosts = async (page = 1, limit = 12): Promise<PostProps[]> =>
   }
 };
 
-// Fetch a single post by slug
 export const getPostBySlug = async (slug: string): Promise<PostProps | null> => {
   try {
     const post: PostProps = await api.posts.read({ slug }, { include: 'tags,authors' });

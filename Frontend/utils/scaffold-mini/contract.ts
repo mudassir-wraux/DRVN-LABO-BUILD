@@ -3,7 +3,7 @@ export type GenericContractsDeclaration = {
   [chainId: number]: {
     [contractName: string]: {
       address: string;
-      abi: any[];
+      abi: unknown[];
     };
   };
 };
