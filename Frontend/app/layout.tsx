@@ -58,7 +58,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`bg-black text-foreground min-h-screen ${spaceMono.variable} ${spaceGrotesk.variable} font-sans`}
+        className={`bg-transparent text-foreground min-h-screen ${spaceMono.variable} ${spaceGrotesk.variable} font-sans`}
       >
         <Providers>{children}</Providers>
       </body>
